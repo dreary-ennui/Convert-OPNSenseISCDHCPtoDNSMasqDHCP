@@ -1,6 +1,6 @@
 # Convert-OPNSenseISCtoDNSMasqDHCP
-- Converts OPNSense ISC DHCP scopes / interfaces from an OPNSense config XML into DNSMasq DHCP ranges
-- Converts OPNSense ISC DHCP reservations from an OPNSense config XML into DNSMasq DHCP reservations
+- Converts OPNSense ISC DHCP scopes / interfaces from an OPNSense config XML into DNSMasq DHCP range entries
+- Converts OPNSense ISC DHCP static mappings (reservations) from an OPNSense config XML into DNSMasq Hosts entries
 
 # Parameters
 ## OPNSenseBackupXML
