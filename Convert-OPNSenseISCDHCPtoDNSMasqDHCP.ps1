@@ -7,12 +7,16 @@ param(
         }
         return $true
     })]
+    [Parameter(Mandatory=$true)]
     [string]$OPNSenseBackupXML,
 
+    [Parameter(Mandatory=$true)]
     [string]$OPNSenseURL,
 
+    [Parameter(Mandatory=$true)]
     [string]$apiKey,
 
+    [Parameter(Mandatory=$true)]
     [string]$apiKeySecret,
 
     [switch]$allowDupeRanges,
