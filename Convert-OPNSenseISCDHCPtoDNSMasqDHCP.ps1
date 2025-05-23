@@ -184,4 +184,44 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
             throw $_
         }
     }
+
+
+    # Set NTP option for interface
+    if ($null -ne $XMLdhcpdinterface.ntpserver -and "" -ne $XMLdhcpdinterface.ntpserver){
+        try{
+            $addOptionResults = $null
+            $addOptionURL = "$OPNSenseURL/api/dnsmasq/settings/add_option"
+            $constructor = $null
+            if ($XMLdhcpdinterface.range.from -like "::*"){
+                $constructor = $XMLdhcpdinterface.PSObject.Properties['Name'].Value
+            }
+            $addOptionBody = $null
+            $addOptionBody = [Ordered]@{
+                option = [Ordered]@{
+                    description = ""
+                    force = "0"
+                    interface = "$($XMLdhcpdinterface.PSObject.Properties['Name'].Value)"
+                    option = "42"
+                    option6 = ""
+                    set_tag = ""
+                    tag = ""
+                    type = "set"
+                    value = "$($XMLdhcpdinterface.ntpserver)"
+                }
+            } | ConvertTo-Json -Depth 99 -Compress
+            Write-Verbose "Attempting to POST to $addOptionURL the contents `'$addOptionBody`'"
+            $addOptionResults = Invoke-WebRequest -Uri "$addOptionURL" -Method POST -Headers $headers -Body $addOptionBody -ContentType "application/json" -ErrorAction Stop
+            if ($addOptionResults.Content -match "failed") {
+                Write-Error -Message "Failed adding range`n URL: $addOptionURL`n Body: $addOptionBody"
+                Throw "See Write-Error message above"
+            }
+            elseif ($addOptionResults.Content -match "saved"){
+                Write-Host -ForegroundColor Green "Successfully posted `'$addOptionBody`' to $addOptionURL"
+            }
+        }
+        catch {
+            throw $_
+        }
+    }
+
 }
