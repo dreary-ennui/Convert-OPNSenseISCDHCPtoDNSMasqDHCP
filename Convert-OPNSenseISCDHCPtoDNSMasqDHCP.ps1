@@ -92,7 +92,7 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
             $body = [Ordered]@{
                 range = [Ordered]@{
                     constructor = "$constructor"
-                    description = "Created by Convert-OPNSenseISCDHCPtoDNSMasqDHCP"
+                    description = "Created by https://github.com/dreary-ennui/Convert-OPNSenseISCDHCPtoDNSMasqDHCP"
                     domain = "$($XMLdhcpdinterface.domain)"
                     start_addr = "$($XMLdhcpdinterface.range.from)"
                     end_addr = "$($XMLdhcpdinterface.range.to)"
@@ -114,6 +114,9 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
             if ($AddRangeResults.Content -match "failed") {
                 Write-Error -Message "Failed adding range`n URL: $addRangeURL`n Body: $body"
                 Throw "See Write-Error message above"
+            }
+            elseif ($AddRangeResults.Content -match "saved"){
+                Write-Host -ForegroundColor Green "Successfully posted `'$body`' to $addrangeURL"
             }
         }
         catch {
