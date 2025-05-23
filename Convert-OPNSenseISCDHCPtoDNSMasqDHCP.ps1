@@ -191,10 +191,6 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
         try{
             $addOptionResults = $null
             $addOptionURL = "$OPNSenseURL/api/dnsmasq/settings/add_option"
-            $constructor = $null
-            if ($XMLdhcpdinterface.range.from -like "::*"){
-                $constructor = $XMLdhcpdinterface.PSObject.Properties['Name'].Value
-            }
             $addOptionBody = $null
             $addOptionBody = [Ordered]@{
                 option = [Ordered]@{
@@ -212,7 +208,41 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
             Write-Verbose "Attempting to POST to $addOptionURL the contents `'$addOptionBody`'"
             $addOptionResults = Invoke-WebRequest -Uri "$addOptionURL" -Method POST -Headers $headers -Body $addOptionBody -ContentType "application/json" -ErrorAction Stop
             if ($addOptionResults.Content -match "failed") {
-                Write-Error -Message "Failed adding range`n URL: $addOptionURL`n Body: $addOptionBody"
+                Write-Error -Message "Failed adding option`n URL: $addOptionURL`n Body: $addOptionBody"
+                Throw "See Write-Error message above"
+            }
+            elseif ($addOptionResults.Content -match "saved"){
+                Write-Host -ForegroundColor Green "Successfully posted `'$addOptionBody`' to $addOptionURL"
+            }
+        }
+        catch {
+            throw $_
+        }
+    }
+
+    # Set domain name option for interface
+    if ($null -ne $XMLdhcpdinterface.domain -and "" -ne $XMLdhcpdinterface.domain){
+        try{
+            $addOptionResults = $null
+            $addOptionURL = "$OPNSenseURL/api/dnsmasq/settings/add_option"
+            $addOptionBody = $null
+            $addOptionBody = [Ordered]@{
+                option = [Ordered]@{
+                    description = ""
+                    force = "0"
+                    interface = "$($XMLdhcpdinterface.PSObject.Properties['Name'].Value)"
+                    option = "15"
+                    option6 = ""
+                    set_tag = ""
+                    tag = ""
+                    type = "set"
+                    value = "$($XMLdhcpdinterface.domain)"
+                }
+            } | ConvertTo-Json -Depth 99 -Compress
+            Write-Verbose "Attempting to POST to $addOptionURL the contents `'$addOptionBody`'"
+            $addOptionResults = Invoke-WebRequest -Uri "$addOptionURL" -Method POST -Headers $headers -Body $addOptionBody -ContentType "application/json" -ErrorAction Stop
+            if ($addOptionResults.Content -match "failed") {
+                Write-Error -Message "Failed adding option`n URL: $addOptionURL`n Body: $addOptionBody"
                 Throw "See Write-Error message above"
             }
             elseif ($addOptionResults.Content -match "saved"){
