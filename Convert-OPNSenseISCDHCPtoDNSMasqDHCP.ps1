@@ -47,7 +47,6 @@ $existingDNSMasqSettings = Get-OpnsenseDNSMasqSettings -opnsenseURL $OPNSenseURL
 
 # Add dhcpd and dhcpd6 stuff to a single array
 $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSenseXMLContent.opnsense.dhcpdv6.ChildNodes
-$dhcpdContentsFromXML = $dhcpdContentsFromXML | Sort-Object -Property
 
 # Iterate through XML Content and do stuff
 :XMLinterfaceloop foreach ($XMLdhcpdinterface in $dhcpdContentsFromXML) {
