@@ -54,7 +54,6 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
     $xmlInterfaceStaticMaps = $null
     $existingDNSMasqSettings = $null
     $skipRangeCreation = $false
-    $xmlInterfaceStaticMaps = $XMLdhcpdinterface.staticmap
 
     # Is this range disabled?
     if ($ConvertDisabledRanges -or ((-not $convertDisabledRanges) -and $XMLdhcpdinterface.enable -ne 1)){
@@ -82,17 +81,17 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
     if ($skipRangeCreation -eq $false -or $allowDupeRanges -eq $true) {
 
         try{
-            $AddRangeResults = $null
-            $AddRangeURL = "$OPNSenseURL/api/dnsmasq/settings/add_range"
+            $addRangeResults = $null
+            $addRangeURL = "$OPNSenseURL/api/dnsmasq/settings/add_range"
             $constructor = $null
             if ($XMLdhcpdinterface.range.from -like "::*"){
                 $constructor = $XMLdhcpdinterface.PSObject.Properties['Name'].Value
             }
-            $body = $null
-            $body = [Ordered]@{
+            $addRangeBody = $null
+            $addRangeBody = [Ordered]@{
                 range = [Ordered]@{
                     constructor = "$constructor"
-                    description = "Created by https://github.com/dreary-ennui/Convert-OPNSenseISCDHCPtoDNSMasqDHCP"
+                    description = ""
                     domain = "$($XMLdhcpdinterface.domain)"
                     start_addr = "$($XMLdhcpdinterface.range.from)"
                     end_addr = "$($XMLdhcpdinterface.range.to)"
@@ -109,14 +108,14 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
                     set_tag = ""
                 }
             } | ConvertTo-Json -Depth 99 -Compress
-            Write-Verbose "Attempting to POST to $addRangeURL the contents `'$body`'"
-            $AddRangeResults = Invoke-WebRequest -Uri "$addRangeURL" -Method POST -Headers $headers -Body $body -ContentType "application/json" -ErrorAction Stop
-            if ($AddRangeResults.Content -match "failed") {
-                Write-Error -Message "Failed adding range`n URL: $addRangeURL`n Body: $body"
+            Write-Verbose "Attempting to POST to $addRangeURL the contents `'$addRangeBody`'"
+            $addRangeResults = Invoke-WebRequest -Uri "$addRangeURL" -Method POST -Headers $headers -Body $addRangeBody -ContentType "application/json" -ErrorAction Stop
+            if ($addRangeResults.Content -match "failed") {
+                Write-Error -Message "Failed adding range`n URL: $addRangeURL`n Body: $addRangeBody"
                 Throw "See Write-Error message above"
             }
-            elseif ($AddRangeResults.Content -match "saved"){
-                Write-Host -ForegroundColor Green "Successfully posted `'$body`' to $addrangeURL"
+            elseif ($addRangeResults.Content -match "saved"){
+                Write-Host -ForegroundColor Green "Successfully posted `'$addRangeBody`' to $addrangeURL"
             }
         }
         catch {
@@ -124,10 +123,61 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
         }
     }
 
-    :XMLstaticmaploop foreach ($xmlInterfaceStaticMap in $xmlInterfaceStaticMaps) {
-        if (-not ($xmlInterfaceStaticMap.mac -and $xmlInterfaceStaticMap.ipaddr)) {
-            continue XMLstaticmaploop
+    :staticmaploop foreach ($staticMap in $XMLdhcpdinterface.staticmap) {
+
+        # Is current staticmap an IPv6?
+        if ($staticMap.duid -and $staticMap.ipaddrv6){
+            $staticMapIPv6 = $true
+        }
+        elseif (($staticMap.mac -and $staticMap.ipaddr)) {
+            $staticMapIPv4 = $true
         }
 
+        # Does host already exist?
+        foreach ($existingHost in $existingDNSMasqSettings.dnsmasq.hosts.Values){
+            if (($staticMapIPv6 -and $null -ne $staticMap.duid) -and $staticMap.duid -eq $existingHost.client_id) {
+                # Current host already exists
+                Write-Verbose "Host with duid $($staticMap.duid) already exists, skipping host"
+                continue staticmaploop
+            }
+            if (($staticMapIPv4 -and $null -ne $staticMap.mac) -and $staticMap.mac -in $existingHost.hwaddr.values.value) {
+                # Current host already exists
+                Write-Verbose "Host with MAC $($staticMap.mac) already exists, skipping host"
+                continue staticmaploop
+            }
+        }
+
+        try {
+            $addHostResults = $null
+            $addHostURL = "$OPNSenseURL/api/dnsmasq/settings/add_host"
+            $addHostBody = $null
+            $addHostBody = [Ordered]@{
+                host = [Ordered]@{
+                    aliases = ""
+                    client_id = "$($staticMap.duid)"
+                    comments = ""
+                    descr = "$($staticMap.descr)"
+                    domain = ""
+                    host = "$($staticMap.hostname)"
+                    hwaddr = "$($staticMap.mac)"
+                    ignore = ""
+                    ip = if ($staticMapIPv6){"$($staticMap.ipaddrv6)"} else {"$($staticMap.ipaddr)"}
+                    lease_time = ""
+                    set_tag = ""
+                }
+            } | ConvertTo-Json -Depth 99 -Compress
+            Write-Verbose "Attempting to POST to $addHostURL the contents `'$addHostBody`'"
+            $addHostResults = Invoke-WebRequest -Uri "$addHostURL" -Method POST -Headers $headers -Body $addHostBody -ContentType "application/json" -ErrorAction Stop
+            if ($addHostResults.Content -match "failed") {
+                Write-Error -Message "Failed adding host`n URL: $addHostURL`n Body: $addHostBody"
+                Throw "See Write-Error message above"
+            }
+            elseif ($addHostResults.Content -match "saved"){
+                Write-Host -ForegroundColor Green "Successfully posted `'$addHostBody`' to $addHostURL"
+            }
+        }
+        catch {
+            throw $_
+        }
     }
 }
