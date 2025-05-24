@@ -9,17 +9,17 @@
     .PARAMETER OPNSenseURL
     Fully qualified OPNSense URL
 
-    .PARAMETER apiKey
+    .PARAMETER APIKey
     The API key of a user that has "Services: Dnsmasq DNS/DHCP: Settings" privileges
 
-    .PARAMETER apiKeySecret
-    The apiKey's corresponding secret
+    .PARAMETER APIKeySecret
+    The APIKey's corresponding secret
 
     .PARAMETER Verbose
     A switch parameter that prints additional information to the script host
 
     .EXAMPLE
-    ./Convert-OPNSenseISCDHCPtoDNSMasqDHCP.ps1 -OPNSenseBackupXML "C:\Users\Me\Downloads\config-opnsense.xml" -OPNSenseURL "https://myopnsense.internal" -apiKey "abcdef123456" -apiKeySecret "defghijkl123456789"
+    ./Convert-OPNSenseISCDHCPtoDNSMasqDHCP.ps1 -OPNSenseBackupXML "C:\Users\Me\Downloads\config-opnsense.xml" -OPNSenseURL "https://myopnsense.internal" -APIKey "abcdef123456" -APIKeySecret "defghijkl123456789"
 
 #>
 
@@ -40,10 +40,10 @@ param(
     [string]$OPNSenseURL,
 
     [Parameter(Mandatory=$true)]
-    [string]$apiKey,
+    [string]$APIKey,
 
     [Parameter(Mandatory=$true)]
-    [string]$apiKeySecret,
+    [string]$APIKeySecret,
 
     [switch]$allowDupeRanges,
 
@@ -69,7 +69,7 @@ if ((-not ($OPNSenseXMLContent.opnsense.dhcpd)) -or (-not ($OPNSenseXMLContent.o
 }
 
 # Validate Opnsense DNSMasq API Access and get existing dnsmasq settings
-$userpass = "${apiKey}:${apiKeySecret}"
+$userpass = "${APIKey}:${APIKeySecret}"
 $encodedAuth = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($userpass))
 $headers = @{Authorization = "Basic $encodedAuth"}
 $existingDNSMasqSettings = Get-OpnsenseDNSMasqSettings -opnsenseURL $OPNSenseURL -headers $headers
@@ -81,7 +81,6 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
 # Iterate through XML Content and do stuff
 :XMLinterfaceloop foreach ($XMLdhcpdinterface in $dhcpdContentsFromXML) {
     # Init values
-    $xmlInterfaceStaticMaps = $null
     $existingDNSMasqSettings = $null
     $skipRangeCreation = $false
 
