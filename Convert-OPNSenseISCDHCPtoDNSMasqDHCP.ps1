@@ -45,7 +45,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$APIKeySecret,
 
-    [switch]$allowDupeRanges,
+    [switch]$AllowDupeRanges,
 
     [switch]$ConvertDisabledRanges
 )
@@ -106,8 +106,8 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
         }
     }
 
-    # Interface's configured range does not already exist, or $allowDupeRanges is configured, so create it
-    if ($skipRangeCreation -eq $false -or $allowDupeRanges -eq $true) {
+    # Interface's configured range does not already exist, or $AllowDupeRanges is configured, so create it
+    if ($skipRangeCreation -eq $false -or $AllowDupeRanges -eq $true) {
 
         try{
             $addRangeResults = $null
