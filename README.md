@@ -9,19 +9,19 @@ This script performs the following functions:
 The script writes to script host green stuff when good things happen and yellow stuff if you use the -Verbose switch.
 
 # Parameters
-## OPNSenseBackupXML
+## -OPNSenseBackupXML
 The path to a valid OPNSense configuration backup XML that has ISC DHCP configurations in it
 
-## OPNSenseURL
+## -OPNSenseURL
 The FQDN of your OPNSense instance
 
-## apiKey
+## -apiKey
 The API key of a user that has "Services: Dnsmasq DNS/DHCP: Settings" privileges
 
-## apiKeySecret
+## -apiKeySecret
 The secret of the apiKey above
 
-## Verbose
+## -Verbose
 A switch parameter that prints additional information to the script host
 
 # Usage example
