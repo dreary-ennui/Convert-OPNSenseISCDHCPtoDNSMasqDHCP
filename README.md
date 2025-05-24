@@ -15,11 +15,11 @@ The path to a valid OPNSense configuration backup XML that has ISC DHCP configur
 ### -OPNSenseURL
 The FQDN of your OPNSense instance
 
-### -apiKey
+### -APIKey
 The API key of a user that has "Services: Dnsmasq DNS/DHCP: Settings" privileges
 
-### -apiKeySecret
-The secret of the apiKey above
+### -APIKeySecret
+The secret of the APIKey above
 
 ### -Verbose
 A switch parameter that prints additional information to the script host
