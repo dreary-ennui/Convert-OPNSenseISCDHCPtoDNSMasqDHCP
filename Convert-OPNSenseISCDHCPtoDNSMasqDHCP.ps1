@@ -1,3 +1,29 @@
+<#
+    .DESCRIPTION
+    Converts ISC DHCP ranges and static mappings into DNSMasq ranges and hosts from an OPNSense backup XML.
+    https://github.com/dreary-ennui/Convert-OPNSenseISCDHCPtoDNSMasqDHCP
+
+    .PARAMETER OPNSenseBackupXML
+    Path to an unencrypted OPNSense backup XML with ISC DHCP ranges and static mappings
+
+    .PARAMETER OPNSenseURL
+    Fully qualified OPNSense URL
+
+    .PARAMETER apiKey
+    The API key of a user that has "Services: Dnsmasq DNS/DHCP: Settings" privileges
+
+    .PARAMETER apiKeySecret
+    The apiKey's corresponding secret
+
+    .PARAMETER Verbose
+    A switch parameter that prints additional information to the script host
+
+    .EXAMPLE
+    ./Convert-OPNSenseISCDHCPtoDNSMasqDHCP.ps1 -OPNSenseBackupXML "C:\Users\Me\Downloads\config-opnsense.xml" -OPNSenseURL "https://myopnsense.internal" -apiKey "abcdef123456" -apiKeySecret "defghijkl123456789"
+
+#>
+
+
 #Requires -Version 7.0
 [CmdletBinding()]
 param(
@@ -253,5 +279,6 @@ $dhcpdContentsFromXML = $OPNSenseXMLContent.opnsense.dhcpd.ChildNodes + $OPNSens
             throw $_
         }
     }
-
 }
+
+Write-Host -ForegroundColor Green "Finished!"

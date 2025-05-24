@@ -14,3 +14,10 @@ The API key of a user that has "Services: Dnsmasq DNS/DHCP: Settings" privileges
 
 ## apiKeySecret
 The secret of the apiKey above
+
+## Verbose
+A switch parameter that prints additional information to the script host
+
+# Usage example
+./Convert-OPNSenseISCDHCPtoDNSMasqDHCP.ps1 -OPNSenseBackupXML "C:\Users\Me\Downloads\config-opnsense.xml" -OPNSenseURL "https://myopnsense.internal" -apiKey "abcdef123456" -apiKeySecret "defghijkl123456789"
+
