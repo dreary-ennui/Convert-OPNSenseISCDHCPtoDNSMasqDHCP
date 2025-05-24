@@ -1,6 +1,12 @@
 # Convert-OPNSenseISCtoDNSMasqDHCP
+With ISC DHCP being deprecated, and recent improvements to dnsmasq implementation in OPNSense, I figured it was time to make the switch in my homelab. I wrote this script to make it easy for me to migrate all of my scopes and static mappings.
+
+This script performs the following functions:
 - Converts OPNSense ISC DHCP scopes / interfaces from an OPNSense config XML into DNSMasq DHCP range entries
+- Adds NTP server and Domain name DHCP options during DNSMasq scope creation if they are configured in the ISC DHCP scopes
 - Converts OPNSense ISC DHCP static mappings (reservations) from an OPNSense config XML into DNSMasq Hosts entries
+
+The script writes to script host green stuff when good things happen and yellow stuff if you use the -Verbose switch.
 
 # Parameters
 ## OPNSenseBackupXML
