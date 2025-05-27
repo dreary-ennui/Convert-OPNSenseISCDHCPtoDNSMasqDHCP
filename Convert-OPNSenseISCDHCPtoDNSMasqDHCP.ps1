@@ -63,7 +63,7 @@ function Get-OpnsenseDNSMasqSettings {
 }
 
 # Parse XML Content and verify format
-[xml]$OPNSenseXMLContent = Get-Content -Path $OPNSenseBackupXML -Raw
+[xml]$OPNSenseXMLContent = Get-Content -Path $OPNSenseBackupXML -Encoding utf8 -Raw
 if ((-not ($OPNSenseXMLContent.opnsense.dhcpd)) -or (-not ($OPNSenseXMLContent.opnsense.dhcpdv6)) ){
     throw "File $OPNSenseBackupXML not in expected format"
 }
