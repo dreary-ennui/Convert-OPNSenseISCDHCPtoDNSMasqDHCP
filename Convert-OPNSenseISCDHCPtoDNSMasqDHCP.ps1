@@ -64,8 +64,8 @@ function Get-OpnsenseDNSMasqSettings {
 
 # Parse XML Content and verify format
 [xml]$OPNSenseXMLContent = Get-Content -Path $OPNSenseBackupXML -Encoding utf8 -Raw
-if ((-not ($OPNSenseXMLContent.opnsense.dhcpd)) -or (-not ($OPNSenseXMLContent.opnsense.dhcpdv6)) ){
-    throw "File $OPNSenseBackupXML not in expected format"
+if ( -not ($OPNSenseXMLContent.opnsense.dhcpd -or $OPNSenseXMLContent.opnsense.dhcpdv6)) {
+    throw "File $OPNSenseBackupXML not in expected format. Does not contain a section `"dhcpd`" or `"dhcpdv6`"."
 }
 
 # Validate Opnsense DNSMasq API Access and get existing dnsmasq settings
